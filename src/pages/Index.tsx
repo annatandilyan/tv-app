@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { TrendingCarousel } from '@/components/TrendingCarousel';
 import { Movie } from '@/components/types';
 import { VIDEO_LOAD_DELAY, VIDEO_START_DELAY } from '@/consts';
@@ -15,9 +15,9 @@ const LoadingScreen = () => (
 );
 
 const BackgroundMedia = ({
-  videoLoaded,
-  featuredMovie,
-}: {
+                           videoLoaded,
+                           featuredMovie,
+                         }: {
   videoLoaded: boolean;
   featuredMovie: Movie;
 }) => {
@@ -56,6 +56,15 @@ const Index = () => {
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
   const { featuredMovie, trendingMovies, setFeaturedMovie } = useMoviesData();
   const videoLoaded = useVideoState(isPlayingVideo, VIDEO_LOAD_DELAY);
+
+  // Initialize video state for the first featured movie
+  useEffect(() => {
+    if (featuredMovie && !isPlayingVideo) {
+      setTimeout(() => {
+        setIsPlayingVideo(true);
+      }, VIDEO_START_DELAY);
+    }
+  }, [featuredMovie]); // Only run when featuredMovie changes from null to a movie
 
   const handleMovieClick = useCallback(
     (movie: Movie) => {
