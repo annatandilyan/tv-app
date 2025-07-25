@@ -25,7 +25,9 @@ const BackgroundMedia = ({
     return (
       <video
         className="absolute inset-0 w-full object-cover"
-        src={featuredMovie.videoUrl}
+        src={'https://www.w3schools.com/html/mov_bbb.mp4'}
+        // video url you provided doesn't work
+        //src={featuredMovie.videoUrl}
         autoPlay
         muted
         loop
