@@ -24,7 +24,7 @@ const NavigationItem = ({
       to={item.path}
       className={({ isActive: active }) =>
         cn(
-          'flex items-center py-4 transition-all duration-300 ease-in-out',
+          'flex items-center py-4 transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           isExpanded
             ? 'px-4 [border-radius:12px]'
             : 'justify-center px-0 [border-radius:24px]',
