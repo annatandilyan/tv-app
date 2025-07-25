@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+bun.lockb
+package-lock.json
+
+# Build outputs
+dist/
+build/
+
+# Generated files
+*.d.ts
+
+# Logs
+*.log
+
+# Other
+.env*
