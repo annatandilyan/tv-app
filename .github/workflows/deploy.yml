@@ -1,39 +1,53 @@
-name: Deploy React App
+name: Deploy React App to EC2
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1. Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Setup Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install
+      # 3. Install dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Build
+      # 4. Build React app
+      - name: Build project
         run: npm run build
 
+      # 5. Setup SSH key
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 54.87.227.86 >> ~/.ssh/known_hosts
 
-      - name: Deploy
+      # 6. Test SSH connection (VERY IMPORTANT FOR DEBUGGING)
+      - name: Test SSH connection
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r dist/* ec2-user@54.87.227.86:/tmp/
+          ssh -i ~/.ssh/id_rsa ec2-user@54.87.227.86 "echo SSH_CONNECTION_OK"
 
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@54.87.227.86 << 'EOF'
+      # 7. Deploy to EC2
+      - name: Deploy to EC2
+        run: |
+          scp -i ~/.ssh/id_rsa -r dist/* ec2-user@54.87.227.86:/tmp/
+
+          ssh -i ~/.ssh/id_rsa ec2-user@54.87.227.86 << 'EOF'
             sudo rm -rf /usr/share/nginx/html/*
             sudo cp -r /tmp/* /usr/share/nginx/html/
+            sudo systemctl restart nginx
           EOF
