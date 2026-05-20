@@ -1,16 +1,15 @@
-name: Deploy React App to EC2
+name: Deploy React App
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -18,27 +17,23 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: Install
         run: npm install
 
-      - name: Build project
+      - name: Build
         run: npm run build
 
-      - name: Setup SSH key
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Deploy to EC2
+      - name: Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@54.87.227.86 << 'EOF'
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r dist/* ec2-user@54.87.227.86:/tmp/
+
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ec2-user@54.87.227.86 << 'EOF'
             sudo rm -rf /usr/share/nginx/html/*
-          EOF
-
-          scp -r dist/* ec2-user@54.87.227.86:/tmp/dist/
-
-          ssh -o StrictHostKeyChecking=no ec2-user@54.87.227.86 << 'EOF'
-            sudo cp -r /tmp/dist/* /usr/share/nginx/html/
-            sudo systemctl restart nginx
+            sudo cp -r /tmp/* /usr/share/nginx/html/
           EOF
