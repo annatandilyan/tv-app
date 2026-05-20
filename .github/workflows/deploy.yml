@@ -1,4 +1,4 @@
-name: Deploy React App to EC2
+name: Deploy React to EC2
 
 on:
   push:
@@ -11,24 +11,24 @@ jobs:
 
     steps:
       # 1. Checkout code
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js
+      # 2. Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
       # 3. Install dependencies
-      - name: Install dependencies
+      - name: Install
         run: npm install
 
-      # 4. Build React app
-      - name: Build project
+      # 4. Build project
+      - name: Build
         run: npm run build
 
-      # 5. Setup SSH key
+      # 5. Setup SSH
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -36,13 +36,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 54.87.227.86 >> ~/.ssh/known_hosts
 
-      # 6. Test SSH connection (VERY IMPORTANT FOR DEBUGGING)
-      - name: Test SSH connection
-        run: |
-          ssh -i ~/.ssh/id_rsa ec2-user@54.87.227.86 "echo SSH_CONNECTION_OK"
-
-      # 7. Deploy to EC2
-      - name: Deploy to EC2
+      # 6. Deploy
+      - name: Deploy
         run: |
           scp -i ~/.ssh/id_rsa -r dist/* ec2-user@54.87.227.86:/tmp/
 
